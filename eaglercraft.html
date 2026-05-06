@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eaglercraft - LunarMC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 3em;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #2c3e50;
+        }
+        .ip-display {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .copy-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .copy-button:hover {
+            background-color: #2980b9;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            margin-top: 20px;
+        }
+        nav {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LunarMC Eaglercraft</h1>
+        <p>Play Minecraft in your browser!</p>
+    </header>
+    <div class="container">
+        <nav>
+            <a href="index.html">Home</a>
+        </nav>
+        <h2>About Eaglercraft</h2>
+        <p>Eaglercraft allows you to play Minecraft directly in your web browser without needing to download the game. It's perfect for quick sessions or playing on devices where installing Minecraft isn't possible.</p>
+        
+        <h2>Server WebSocket URL</h2>
+        <div class="ip-display" id="ws-url">wss://lunar-mc.eagler.host</div>
+        <p style="text-align: center;">
+            <button class="copy-button" onclick="copyToClipboard()">Copy URL</button>
+        </p>
+        
+        <h2>How to Connect</h2>
+        <ol>
+            <li>Go to an Eaglercraft client website (search for "Eaglercraft" online)</li>
+            <li>Enter the WebSocket URL above in the server address field</li>
+            <li>Click connect and start playing!</li>
+        </ol>
+        
+        <p><strong>Note:</strong> Make sure you're using a compatible Eaglercraft client that supports WebSocket connections.</p>
+    </div>
+    <footer>
+        <p>&copy; 2024 LunarMC. All rights reserved.</p>
+    </footer>
+    <script>
+        function copyToClipboard() {
+            const url = document.getElementById('ws-url').textContent;
+            navigator.clipboard.writeText(url).then(function() {
+                alert('URL copied to clipboard!');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
