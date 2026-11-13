@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8fafc">
   <title>ZayZay | jamie666real.github.io</title>
   <style>
     :root {
+      color-scheme: light dark;
       --bg-color: #f8fafc;
       --text-main: #0f172a;
       --text-muted: #475569;
       --accent: #2563eb;
-      --accent-hover: #1d4ed8;
       --card-bg: #ffffff;
       --border-color: #e2e8f0;
       --badge-bg: #eff6ff;
@@ -21,104 +22,70 @@
         --bg-color: #0f172a;
         --text-main: #f8fafc;
         --text-muted: #94a3b8;
-        --accent: #3b82f6;
-        --accent-hover: #60a5fa;
+        --accent: #60a5fa;
         --card-bg: #1e293b;
         --border-color: #334155;
         --badge-bg: #1e3a8a;
       }
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
 
     body {
+      margin: 0;
+      padding: 3rem 1.5rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
+      background: var(--bg-color);
       color: var(--text-main);
       line-height: 1.6;
-      padding: 3rem 1.5rem;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 1000px; margin: 0 auto; }
 
     header {
-      margin-bottom: 2.5rem;
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
       padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    h1 {
-      font-size: 2.25rem;
-      font-weight: 800;
-      margin-bottom: 0.25rem;
-    }
-
-    .subtitle {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-    }
+    h1 { margin: 0 0 0.25rem; font-size: 2.25rem; font-weight: 800; }
+    .subtitle, .status { color: var(--text-muted); }
+    .subtitle { margin: 0; font-size: 1.1rem; }
+    .status { margin: 0 0 1rem; }
 
     .repo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
       gap: 1.25rem;
     }
 
     .repo-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      text-decoration: none;
+      min-height: 160px;
+      padding: 1.5rem;
       color: inherit;
+      text-decoration: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
       transition: transform 0.15s ease, border-color 0.15s ease;
     }
 
-    .repo-card:hover {
+    .repo-card:hover, .repo-card:focus-visible {
       transform: translateY(-3px);
       border-color: var(--accent);
     }
 
-    .repo-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
-      word-break: break-word;
-    }
+    .repo-title { margin: 0 0 0.5rem; color: var(--accent); font-size: 1.15rem; overflow-wrap: anywhere; }
+    .repo-desc { flex-grow: 1; margin: 0 0 1.25rem; color: var(--text-muted); font-size: 0.95rem; }
+    .repo-meta { display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--text-muted); font-size: 0.85rem; }
+    .badge { padding: 0.2rem 0.6rem; color: var(--accent); background: var(--badge-bg); border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .error { color: #dc2626; }
 
-    .repo-desc {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 1.25rem;
-      flex-grow: 1;
-    }
-
-    .repo-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .badge {
-      background-color: var(--badge-bg);
-      color: var(--accent);
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 0.75rem;
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
     }
   </style>
 </head>
@@ -126,60 +93,85 @@
   <div class="container">
     <header>
       <h1>ZayZay</h1>
-      <p class="subtitle">Projects & Repositories by @jamie666real</p>
+      <p class="subtitle">Projects &amp; Repositories by @jamie666real</p>
     </header>
 
     <main>
-      <div id="repo-list" class="repo-grid">
-        <p>Loading repositories...</p>
-      </div>
+      <p id="status" class="status" role="status" aria-live="polite">Loading repositories…</p>
+      <div id="repo-list" class="repo-grid"></div>
     </main>
   </div>
 
   <script>
     const username = 'jamie666real';
     const repoList = document.getElementById('repo-list');
+    const status = document.getElementById('status');
 
     async function fetchRepos() {
       try {
-        // Fetches up to 100 public repositories, sorted by most recently updated
-        const response = await fetch(`https://github.com{username}/repos?sort=updated&per_page=100`);
-        if (!response.ok) throw new Error('Failed to load repositories');
+        const repos = [];
+        let page = 1;
 
-        const repos = await response.json();
-        repoList.innerHTML = '';
+        // The public GitHub API returns at most 100 repositories per page.
+        while (true) {
+          const response = await fetch(
+            `https://api.github.com/users/${encodeURIComponent(username)}/repos?type=owner&sort=updated&per_page=100&page=${page}`,
+            { headers: { Accept: 'application/vnd.github+json' } }
+          );
 
-        // Filter out the website repo itself (optional - remove the .filter line if you want it shown)
-        const filteredRepos = repos.filter(repo => repo.name.toLowerCase() !== `${username.toLowerCase()}.github.io`);
+          if (!response.ok) {
+            throw new Error(response.status === 403 || response.status === 429
+              ? 'GitHub API rate limit reached. Please try again later.'
+              : `GitHub returned an error (${response.status}).`);
+          }
 
-        if (filteredRepos.length === 0) {
-          repoList.innerHTML = '<p>No public repositories found.</p>';
+          const pageRepos = await response.json();
+          repos.push(...pageRepos);
+          if (pageRepos.length < 100) break;
+          page += 1;
+        }
+
+        repoList.replaceChildren();
+        status.textContent = `${repos.length} public ${repos.length === 1 ? 'repository' : 'repositories'}`;
+
+        if (repos.length === 0) {
+          status.textContent = 'No public repositories found.';
           return;
         }
 
-        filteredRepos.forEach(repo => {
+        for (const repo of repos) {
           const card = document.createElement('a');
+          card.className = 'repo-card';
           card.href = repo.html_url;
           card.target = '_blank';
           card.rel = 'noopener noreferrer';
-          card.className = 'repo-card';
 
-          card.innerHTML = `
-            <div>
-              <div class="repo-title">${repo.name}</div>
-              <p class="repo-desc">${repo.description || 'No description provided.'}</p>
-            </div>
-            <div class="repo-meta">
-              <span>${repo.language ? `<span class="badge">${repo.language}</span>` : ''}</span>
-              <span>★ ${repo.stargazers_count}</span>
-            </div>
-          `;
+          const details = document.createElement('div');
+          const title = document.createElement('h2');
+          title.className = 'repo-title';
+          title.textContent = repo.name;
+          const description = document.createElement('p');
+          description.className = 'repo-desc';
+          description.textContent = repo.description || 'No description provided.';
+          details.append(title, description);
 
+          const meta = document.createElement('div');
+          meta.className = 'repo-meta';
+          const language = document.createElement('span');
+          if (repo.language) {
+            language.className = 'badge';
+            language.textContent = repo.language;
+          }
+          const stars = document.createElement('span');
+          stars.textContent = `★ ${repo.stargazers_count}`;
+          meta.append(language, stars);
+          card.append(details, meta);
           repoList.appendChild(card);
-        });
+        }
       } catch (error) {
-        repoList.innerHTML = '<p>Could not load repositories right now. Please try again later.</p>';
-        console.error(error);
+        status.textContent = error.message || 'Could not load repositories. Please try again later.';
+        status.classList.add('error');
+        console.error('Unable to load GitHub repositories:', error);
       }
     }
 
