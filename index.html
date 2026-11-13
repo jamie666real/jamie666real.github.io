@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZayZay | jamie666real.github.io</title>
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --badge-bg: #eff6ff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #0f172a;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --accent: #3b82f6;
+        --accent-hover: #60a5fa;
+        --card-bg: #1e293b;
+        --border-color: #334155;
+        --badge-bg: #1e3a8a;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 3rem 1.5rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .repo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .repo-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .repo-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
+
+    .repo-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      word-break: break-word;
+    }
+
+    .repo-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+
+    .repo-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      background-color: var(--badge-bg);
+      color: var(--accent);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>ZayZay</h1>
+      <p class="subtitle">Projects & Repositories by @jamie666real</p>
+    </header>
+
+    <main>
+      <div id="repo-list" class="repo-grid">
+        <p>Loading repositories...</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const username = 'jamie666real';
+    const repoList = document.getElementById('repo-list');
+
+    async function fetchRepos() {
+      try {
+        // Fetches up to 100 public repositories, sorted by most recently updated
+        const response = await fetch(`https://github.com{username}/repos?sort=updated&per_page=100`);
+        if (!response.ok) throw new Error('Failed to load repositories');
+
+        const repos = await response.json();
+        repoList.innerHTML = '';
+
+        // Filter out the website repo itself (optional - remove the .filter line if you want it shown)
+        const filteredRepos = repos.filter(repo => repo.name.toLowerCase() !== `${username.toLowerCase()}.github.io`);
+
+        if (filteredRepos.length === 0) {
+          repoList.innerHTML = '<p>No public repositories found.</p>';
+          return;
+        }
+
+        filteredRepos.forEach(repo => {
+          const card = document.createElement('a');
+          card.href = repo.html_url;
+          card.target = '_blank';
+          card.rel = 'noopener noreferrer';
+          card.className = 'repo-card';
+
+          card.innerHTML = `
+            <div>
+              <div class="repo-title">${repo.name}</div>
+              <p class="repo-desc">${repo.description || 'No description provided.'}</p>
+            </div>
+            <div class="repo-meta">
+              <span>${repo.language ? `<span class="badge">${repo.language}</span>` : ''}</span>
+              <span>★ ${repo.stargazers_count}</span>
+            </div>
+          `;
+
+          repoList.appendChild(card);
+        });
+      } catch (error) {
+        repoList.innerHTML = '<p>Could not load repositories right now. Please try again later.</p>';
+        console.error(error);
+      }
+    }
+
+    fetchRepos();
+  </script>
+</body>
+</html>
